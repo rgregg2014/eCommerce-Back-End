@@ -40,7 +40,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // create new product
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   /* req.body should look like this...
     {
       product_name: "Basketball",
@@ -49,8 +49,10 @@ router.post("/", (req, res) => {
       tagIds: [1, 2, 3, 4]
     }
   */
-  Product.create(req.body)
-    .then((product) => {
+  let productOutput;
+  try {
+    await Product.create(req.body);
+    productOutput = ((product) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
@@ -62,16 +64,16 @@ router.post("/", (req, res) => {
         return ProductTag.bulkCreate(productTagIdArr);
       }
       // if no product tags, just respond
-      res.status(200).json(product);
-    })
-    .then((productTagIds) => res.status(200).json(productTagIds))
-    .catch((err) => {
-      console.log(err);
-      res.status(400).json(err);
-    });
+      res.status(200).json(productOutput);
+    }).then((productTagIds) => res.status(200).json(productTagIds));
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
 });
 
 // update product
+// This route works, but doesn't display what I want it to
 router.put("/:id", (req, res) => {
   // update product data
   Product.update(req.body, {
