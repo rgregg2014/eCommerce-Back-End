@@ -4,6 +4,7 @@ const { Product, Category, Tag, ProductTag } = require("../../models");
 // The `/api/products` endpoint
 
 // get all products
+//---------------------This is working
 router.get("/", async (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
@@ -18,12 +19,14 @@ router.get("/", async (req, res) => {
 });
 
 // get one product
+//------------------------This is working
 router.get("/:id", async (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
   try {
-    const prodData = await Product.findByPk(req.params.id, {
-      include: [{ include: Category }, { include: Tag }],
+    const prodData = await Product.findOne({
+      where: { id: req.params.id },
+      include: [{ model: Category }, { model: Tag }],
     });
     if (!prodData) {
       res
